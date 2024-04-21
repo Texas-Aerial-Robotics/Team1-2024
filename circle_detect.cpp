@@ -20,6 +20,7 @@ int main() {
         return -1;
     }
 
+    double prev[3] = {0, 0, 0};
     while (true) {
         Mat frame;
         // Capture frame-by-frame
@@ -49,9 +50,37 @@ int main() {
         HoughCircles(mask, circles, HOUGH_GRADIENT, 1, 300, 50, 30, 0, 0);
 
         // If circles are detected, draw them
-        for (size_t i = 0; i < circles.size(); i++) {
-            Point center(cvRound(circles[i][0]), cvRound(circles[i][1]));
-            int radius = cvRound(circles[i][2]);
+        // for (size_t i = 0; i < circles.size(); i++) {
+        //     Point center(cvRound(circles[i][0]), cvRound(circles[i][1]));
+        //     int radius = cvRound(circles[i][2]);
+        //     // Draw the outer circle
+        //     circle(frame, center, radius, Scalar(0, 255, 0), 2);
+        //     // Draw the center of the circle
+        //     circle(frame, center, 2, Scalar(0, 0, 255), 3);
+        // }
+        if (circles.size() > 0) {
+            // std::cout << prev[0] << std::endl;
+            // std::cout << prev[1] << std::endl;
+            // std::cout << prev[2] << std::endl;
+            // std::cout << std::endl;
+
+            // std::cout << (circles[0][0] - prev[0]) / circles[0][2];
+            // std::cout << std::endl;
+
+            double diff = 0.2;
+
+            if (abs((circles[0][0] - prev[0])) / circles[0][2] < diff && abs((circles[0][1] - prev[1])) / circles[0][2] < diff && abs((circles[0][2] - prev[2])) / circles[0][2] < diff) {
+                circles[0][0] = prev[0];
+                circles[0][1] = prev[1];
+                circles[0][2] = prev[2];
+            } else {
+                prev[0] = circles[0][0];
+                prev[1] = circles[0][1];
+                prev[2] = circles[0][2];
+            }
+
+            Point center(cvRound(circles[0][0]), cvRound(circles[0][1]));
+            int radius = cvRound(circles[0][2]);
             // Draw the outer circle
             circle(frame, center, radius, Scalar(0, 255, 0), 2);
             // Draw the center of the circle
@@ -59,8 +88,8 @@ int main() {
         }
 
         // Display the resulting frame
+        //imshow("Mask", mask);
         imshow("Frame", frame);
-        imshow("Mask", mask);
 
         // Press Esc to exit
         if (waitKey(1) == 27)
